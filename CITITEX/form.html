@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Pemesanan</title>
+  <link rel="stylesheet" href="form.css">
+</head>
+<body>
+
+  <section>
+  <h2>Form Pemesanan Produk</h2>
+  <h3>Jangan sampai ada kesalahan pada pengisian formulir</h3>
+  <section>
+  <form id="orderForm">
+    <label>Nama:</label><br>
+    <input type="text" name="nama" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br><br>
+
+    <label>Alamat lengkap:</label><br>
+    <input type="text" name="alamat" required><br><br>
+
+    <label>Warna Kaos Polos:</label><br>
+    <input type="text" name="warna" required><br><br>
+
+    <label>Ukuran:</label><br>
+    <input type="text" name="ukuran" required><br><br>
+
+    <label>Jumlah:</label><br>
+    <input type="number" name="jumlah" required><br><br>
+
+    <button type="submit">Kirim</button>
+
+    <a href="index.html" class="cta-btnn">Kembali ke Halaman Utama</a>
+  </form>
+  <div id="popupMsg"></div>
+
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxvfgddS6AZ2Q7_li_tMXPc1OIQR_WXnQTGUpjRol01Xr81D3M_YqirIq-_Zen4IKEvZw/exec';
+    const form = document.getElementById('orderForm');
+    const popupMsg = document.getElementById('popupMsg');
+    
+    // spinner element
+    const spinner = document.createElement('div');
+    spinner.innerHTML = 'Mengirim...';
+    spinner.style.color = 'white';
+    spinner.style.textAlign = 'center';
+    spinner.style.display = 'none';
+    spinner.style.marginTop = '10px';
+    spinner.style.fontWeight = 'bold';
+    form.appendChild(spinner);
+    
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      
+      spinner.style.display = 'block'; // tampilkan loading
+      
+      const formData = new FormData(form);
+      const nama = formData.get('nama');
+      const email = formData.get('email');
+      const alamat = formData.get('alamat');
+      const warna = formData.get('warna');
+      const ukuran = formData.get('ukuran');
+      const jumlah = formData.get('jumlah');
+    
+      fetch(scriptURL, { method: 'POST', body: formData })
+        .then(response => {
+          spinner.style.display = 'none';
+          showPopup(`Data berhasil dikirim!<br> Klik tombol di bawah untuk lanjut ke WhatsApp: <br><br> 
+            <a href="${generateWhatsAppLink(nama, warna, jumlah, ukuran, alamat, email)}" target="_blank" style="background:#25D366;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Chat via WhatsApp</a>`, 'success');
+          form.reset();
+        })
+        .catch(error => {
+          spinner.style.display = 'none';
+          showPopup('Terjadi kesalahan. Silakan coba lagi.', 'error');
+          console.error('Error!', error.message);
+        });
+    });
+    
+    function showPopup(message, type) {
+      popupMsg.innerHTML = message;
+      popupMsg.className = type;
+      popupMsg.style.display = 'block';
+      popupMsg.style.padding = '15px';
+      popupMsg.style.borderRadius = '8px';
+      popupMsg.style.marginTop = '20px';
+      popupMsg.style.textAlign = 'center';
+      popupMsg.style.fontSize = '16px';
+    
+      if (type === 'success') {
+        popupMsg.style.backgroundColor = '#d4edda';
+        popupMsg.style.color = '#155724';
+        popupMsg.style.border = '1px solid #c3e6cb';
+      } else {
+        popupMsg.style.backgroundColor = '#f8d7da';
+        popupMsg.style.color = '#721c24';
+        popupMsg.style.border = '1px solid #f5c6cb';
+      }
+    }
+    
+    // Fungsi generate link WhatsApp otomatis
+    function generateWhatsAppLink(nama, warna, jumlah, ukuran, alamat, email) {
+      const nomorAdmin = '6282213508437'; // nomor WhatsApp admin
+      const pesan = `Halo, saya ${nama} ingin memesan kaos polos berwarna ${warna} jumlah ${jumlah} dengan ukuran ${ukuran}. Alamat saya: ${alamat}. Email: ${email}`;
+      return `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
+    }
+    </script>
+    
+    
+</body>
+</html>
